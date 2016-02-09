@@ -1,0 +1,27 @@
+
+<#TriplesMap[CAMELTABLENAME]>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:tableSchema "Hadrianus";
+      rr:tableOwner  "hadrianus";
+      rr:tableName   "location";
+    ];
+
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/lod/{nid}";
+      rr:graph    graph:[CAMELTABLENAME];
+      rr:termType rr:IRI;
+      rr:class    erl:E22_Man-Made_Object;
+    ];
+
+    rr:predicateObjectMap [
+      rr:predicate erl:P1_is_identified_by;
+      rr:objectMap [
+        rr:termType rr:Literal;
+        rr:column   "title";
+        rr:class    erl:E41_Appellation;
+      ];
+    ];
+.
+

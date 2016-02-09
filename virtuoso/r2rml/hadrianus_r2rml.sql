@@ -24,6 +24,62 @@ DB.DBA.TTLP('
 @prefix erl: <http://erlangen-crm.org/current/> .
 @prefix vra: <http://www.vraweb.org/vracore/vracore3#> .
 
+<#TriplesMapPerson>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:sqlQuery """
+        SELECT n.nid AS nid, n."language" AS "language", n.title AS title
+        FROM Hadrianus.hadrianus.node AS n
+        WHERE n.type = \'person\'
+      """;
+    ];
+
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/node/{nid}";
+      rr:graph    graph:person;
+      rr:termType rr:IRI;
+      rr:class    erl:E21_Person;
+    ];
+
+    rr:predicateObjectMap [
+      rr:predicate erl:P1_is_identified_by;
+      rr:objectMap [
+        rr:termType rr:Literal;
+        rr:column   "title";
+        rr:class    erl:E41_Appellation;
+      ];
+    ];
+.
+
+<#TriplesMapGroup>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:sqlQuery """
+        SELECT n.nid AS nid, n."language" AS "language", n.title AS title
+        FROM Hadrianus.hadrianus.node AS n
+        WHERE n.type = \'group\'
+      """;
+    ];
+
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/node/{nid}";
+      rr:graph    graph:group;
+      rr:termType rr:IRI;
+      rr:class    erl:E74_Group;
+    ];
+
+    rr:predicateObjectMap [
+      rr:predicate erl:P1_is_identified_by;
+      rr:objectMap [
+        rr:termType rr:Literal;
+        rr:column   "title";
+        rr:class    erl:E41_Appellation;
+      ];
+    ];
+.
+
 <#TriplesMapMapLocations>
     a rr:TriplesMap;
 
@@ -214,7 +270,7 @@ DB.DBA.TTLP('
     
     rr:subjectMap [
       rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:object;
+      rr:graph    graph:objectActualLocation;
       rr:termType rr:IRI;
       rr:class    erl:E22_Man-Made_Object;
     ];
@@ -247,19 +303,13 @@ DB.DBA.TTLP('
  
     rr:subjectMap [
       rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:object;
+      rr:graph    graph:objectLocation;
       rr:termType rr:IRI;
       rr:class    erl:E22_Man-Made_Object;
     ];
 
-    -- Looking at the database, it seems like the field_location is a sort of
-    -- merger of depicted location in case of images and location-node in case
-    -- an object node (e.g. Piazza Navona, node 15) is also a location node (71).
-    -- Unfortunately, most location is data is in this table. The lws table only
-    -- has 8 entries.
-
     rr:predicateObjectMap [
-      rr:predicate ???;
+      rr:predicate erl:P62_depicts;
       rr:objectMap [
         rr:parentTriplesMap <#TriplesMapLocatie>;
         rr:joinCondition [
@@ -288,7 +338,7 @@ DB.DBA.TTLP('
     
     rr:subjectMap [
       rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:object;
+      rr:graph    graph:objectLocationWorkShown;
       rr:termType rr:IRI;
       rr:class    erl:E22_Man-Made_Object;
     ];
@@ -321,7 +371,7 @@ DB.DBA.TTLP('
     
     rr:subjectMap [
       rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:object;
+      rr:graph    graph:objectPerson;
       rr:termType rr:IRI;
       rr:class    erl:E22_Man-Made_Object;
     ];
@@ -334,63 +384,6 @@ DB.DBA.TTLP('
             rr:child  "p_nid";
             rr:parent "nid";
         ];
-      ];
-    ];
-.
-
-
-<#TriplesMapPerson>
-    a rr:TriplesMap;
-
-    rr:logicalTable [
-      rr:sqlQuery """
-        SELECT n.nid AS nid, n."language" AS "language", n.title AS title
-        FROM Hadrianus.hadrianus.node AS n
-        WHERE n.type = \'person\'
-      """;
-    ];
-
-    rr:subjectMap [
-      rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:person;
-      rr:termType rr:IRI;
-      rr:class    erl:E21_Person;
-    ];
-
-    rr:predicateObjectMap [
-      rr:predicate erl:P1_is_identified_by;
-      rr:objectMap [
-        rr:termType rr:Literal;
-        rr:column   "title";
-        rr:class    erl:E41_Appellation;
-      ];
-    ];
-.
-
-<#TriplesMapGroup>
-    a rr:TriplesMap;
-
-    rr:logicalTable [
-      rr:sqlQuery """
-        SELECT n.nid AS nid, n."language" AS "language", n.title AS title
-        FROM Hadrianus.hadrianus.node AS n
-        WHERE n.type = \'group\'
-      """;
-    ];
-
-    rr:subjectMap [
-      rr:template "http://hadrianus.it/node/{nid}";
-      rr:graph    graph:group;
-      rr:termType rr:IRI;
-      rr:class    erl:E74_Group;
-    ];
-
-    rr:predicateObjectMap [
-      rr:predicate erl:P1_is_identified_by;
-      rr:objectMap [
-        rr:termType rr:Literal;
-        rr:column   "title";
-        rr:class    erl:E41_Appellation;
       ];
     ];
 .

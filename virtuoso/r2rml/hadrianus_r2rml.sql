@@ -166,42 +166,11 @@ DB.DBA.TTLP('
 
     rr:logicalTable [
       rr:sqlQuery """
-        SELECT n.nid AS nid, n.title AS title,
-               f_al.entity_id AS al_nid,
-               f_l.entity_id AS l_nid,
-               f_lws.entity_id AS lws_nid,
-               f_lws.delta AS lws_delta,
-               f_p.entity_id AS p_nid
-        FROM Hadrianus.hadrianus.node AS n,
-             Hadrianus.hadrianus.field_data_field_actual_location as f_al,
-             Hadrianus.hadrianus.field_data_field_location as f_l,
-             Hadrianus.hadrianus.field_data_field_location_of_work_shown as f_lws,
-             Hadrianus.hadrianus.field_data_field_person as f_p
-        WHERE     n.type = \'object\'
-              AND n.nid  = f_al.entity_id
-              AND n.nid  = f_l.entity_id
-              AND n.nid  = f_lws.entity_id
-              AND n.nid  = f_p.entity_id
+        SELECT n.nid AS nid, n.title AS title
+        FROM Hadrianus.hadrianus.node AS n
+        WHERE n.type = \'object\'
       """;
     ];
-
-    -- TODO: redo above join: make separate TriplesMap for every join!
-
-    -- erl:P53_has_former_or_current_location, erl:P54_has_current_permanent_location or erl:P55_has_current_location (al)?
-    -- I will assume that the actual_location is in fact a permanent exposition,
-    -- so then we will use P54 for that.
-    
-    -- erl:P62_depicts (lws)
-
-    -- Looking at the database, it seems like the field_location is a sort of
-    -- merger of depicted location in case of images and location-node in case
-    -- an object node (e.g. Piazza Navona, node 15) is also a location node (71).
-    -- Unfortunately, most location is data is in this table. The lws table only
-    -- has 8 entries.
-    
-    -- vra:creator (p)
-    
-    -- Hebben alle nodes wel van alle typen locatie een veld? Of maar van 1?
 
     rr:subjectMap [
       rr:template "http://hadrianus.it/node/{nid}";
@@ -235,11 +204,11 @@ DB.DBA.TTLP('
     rr:logicalTable [
       rr:sqlQuery """
         SELECT n.nid AS nid,
-               f_al.entity_id AS al_nid
+               f_al.field_actual_location_target_id AS al_nid
         FROM Hadrianus.hadrianus.node AS n,
              Hadrianus.hadrianus.field_data_field_actual_location as f_al,
         WHERE     n.type = \'object\'
-              AND nid    = al_nid
+              AND nid    = f_al.entity_id
       """;
     ];
     
@@ -256,6 +225,113 @@ DB.DBA.TTLP('
         rr:parentTriplesMap <#TriplesMapLocatie>;
         rr:joinCondition [
             rr:child  "al_nid";
+            rr:parent "nid";
+        ];
+      ];
+    ];
+.
+
+<#TriplesMapObjectLocation>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:sqlQuery """
+        SELECT n.nid AS nid,
+               f_l.field_location_target_id AS l_nid
+        FROM Hadrianus.hadrianus.node AS n,
+             Hadrianus.hadrianus.field_data_field_location as f_l,
+        WHERE     n.type = \'object\'
+              AND nid    = f_l.entity_id
+      """;
+    ];
+ 
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/node/{nid}";
+      rr:graph    graph:object;
+      rr:termType rr:IRI;
+      rr:class    erl:E22_Man-Made_Object;
+    ];
+
+    -- Looking at the database, it seems like the field_location is a sort of
+    -- merger of depicted location in case of images and location-node in case
+    -- an object node (e.g. Piazza Navona, node 15) is also a location node (71).
+    -- Unfortunately, most location is data is in this table. The lws table only
+    -- has 8 entries.
+
+    rr:predicateObjectMap [
+      rr:predicate ???;
+      rr:objectMap [
+        rr:parentTriplesMap <#TriplesMapLocatie>;
+        rr:joinCondition [
+            rr:child  "l_nid";
+            rr:parent "nid";
+        ];
+      ];
+    ];
+.
+
+
+<#TriplesMapObjectLocationWorkShown>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:sqlQuery """
+        SELECT n.nid AS nid,
+               f_lws.field_location_of_work_shown_target_id AS lws_nid,
+               f_lws.delta AS lws_delta
+        FROM Hadrianus.hadrianus.node AS n,
+             Hadrianus.hadrianus.field_data_field_location_of_work_shown as f_lws
+        WHERE     n.type = \'object\'
+              AND nid    = f_lws.entity_id
+      """;
+    ];
+    
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/node/{nid}";
+      rr:graph    graph:object;
+      rr:termType rr:IRI;
+      rr:class    erl:E22_Man-Made_Object;
+    ];
+
+    rr:predicateObjectMap [
+      rr:predicate erl:P62_depicts;
+      rr:objectMap [
+        rr:parentTriplesMap <#TriplesMapLocatie>;
+        rr:joinCondition [
+            rr:child  "lws_nid";
+            rr:parent "nid";
+        ];
+      ];
+    ];
+.
+
+<#TriplesMapObjectPerson>
+    a rr:TriplesMap;
+
+    rr:logicalTable [
+      rr:sqlQuery """
+        SELECT n.nid AS nid,
+               f_p.field_person_target_id AS p_nid
+        FROM Hadrianus.hadrianus.node AS n,
+             Hadrianus.hadrianus.field_data_field_person as f_p
+        WHERE     n.type = \'object\'
+              AND nid    = f_p.entity_id
+      """;
+    ];
+    
+    rr:subjectMap [
+      rr:template "http://hadrianus.it/node/{nid}";
+      rr:graph    graph:object;
+      rr:termType rr:IRI;
+      rr:class    erl:E22_Man-Made_Object;
+    ];
+
+    rr:predicateObjectMap [
+      rr:predicate vra:creator;
+      rr:objectMap [
+        rr:parentTriplesMap <#TriplesMapPerson>;
+        rr:joinCondition [
+            rr:child  "p_nid";
             rr:parent "nid";
         ];
       ];

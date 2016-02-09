@@ -262,7 +262,7 @@ DB.DBA.TTLP('
         SELECT n.nid AS nid,
                f_al.field_actual_location_target_id AS al_nid
         FROM Hadrianus.hadrianus.node AS n,
-             Hadrianus.hadrianus.field_data_field_actual_location as f_al,
+             Hadrianus.hadrianus.field_data_field_actual_location as f_al
         WHERE     n.type = \'object\'
               AND nid    = f_al.entity_id
       """;
@@ -295,7 +295,7 @@ DB.DBA.TTLP('
         SELECT n.nid AS nid,
                f_l.field_location_target_id AS l_nid
         FROM Hadrianus.hadrianus.node AS n,
-             Hadrianus.hadrianus.field_data_field_location as f_l,
+             Hadrianus.hadrianus.field_data_field_location as f_l
         WHERE     n.type = \'object\'
               AND nid    = f_l.entity_id
       """;
